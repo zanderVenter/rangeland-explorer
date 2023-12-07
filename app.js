@@ -1,6 +1,6 @@
 /**
  * Code for the Rangeland Explorer web app
- * Contains the following sections:
+ * Contains the following sections: 
  * 1. Define initializing constants
  * 2. Define UI (user interface) elements
  * 3. Define global functions
