@@ -10,7 +10,7 @@ Google Earth Engine code to support the [rangeland explorer web app](https://zan
 6. 'update_timeseries_stats.js' - This extracts the temporal satellite data for the polygons in the master project database. The FeatureCollection exported from this script is imported in script 1.
 
 ## Updating the app with new shapefiles
-When you need to incorporate a new shapefile into the app or update an exsisting shapefile, you need make changes to scripts 1, 4, 5, and 6. This is the workflow:
+When you need to incorporate a new shapefile into the app or update an exsisting shapefile, you need make changes to scripts 1, 4, 5, and 6. This is the workflow: 
 
 - Upload the shapefile as a GEE Asset
 - Run script 4 which will import the new GEE Asset and incorporate it into the master FeatureCollection for the app and save with the current date string as the export name suffix "CSA_master_*" where * could be 20231026 for example.
