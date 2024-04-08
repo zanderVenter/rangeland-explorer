@@ -901,35 +901,23 @@ var maskClouds = function(cloudProbabilityThreshold){
 }};
 
 // Get S2 masked collection
-var getS2cloudMasked = function (aoi, startDate, endDate) { 
-  var primary = ee.ImageCollection("COPERNICUS/S2")
-      .filterBounds(aoi)
-      .filterDate(startDate, endDate)
-      .filterMetadata('CLOUDY_PIXEL_PERCENTAGE', 'less_than', sceneCloudThreshold)
-      .select(S2_BANDS, S2_NAMES)
-      .map(addIndices);
-  var secondary = ee.ImageCollection("COPERNICUS/S2_CLOUD_PROBABILITY")
-      .filterBounds(aoi)
-      .filterDate(startDate, endDate);
-  var innerJoined = ee.Join.inner().apply({
-    primary: primary,
-    secondary: secondary,
-    condition: ee.Filter.equals({
-      leftField: 'system:index',
-      rightField: 'system:index'
-    })
-  });
-  var mergeImageBands = function (joinResult) {
-    return ee.Image(joinResult.get('primary'))
-          .addBands(joinResult.get('secondary'));
-  };
-  var newCollection = innerJoined.map(mergeImageBands);
-  newCollection =  ee.ImageCollection(newCollection)
-      .map(maskClouds(cloudMaskProbability))
-      .sort('system:time_start').select(selectBands);
+function getS2cloudMasked(aoi, startDate, endDate) { 
+  var csPlus = ee.ImageCollection('GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED');
   
-  return newCollection
-};
+  var s2 = ee.ImageCollection("COPERNICUS/" + 'S2_HARMONIZED')
+    .filterBounds(aoi)
+      .filterDate(startDate, endDate)
+      .filterMetadata('CLOUDY_PIXEL_PERCENTAGE', 'less_than', 40);
+  
+  s2 = s2.linkCollection(csPlus, ['cs_cdf'])
+    .map(function(img) {
+      return img.updateMask(img.select('cs_cdf').gte(0.6));
+    })
+    
+  s2 = s2.select(S2_BANDS, S2_NAMES).map(addIndices);
+  
+  return s2.select(selectBands)
+}
 
 function getNRTsentinel(aoi, months){
   var col = getS2cloudMasked(aoi, '2022-06-01', '2025-01-01');
